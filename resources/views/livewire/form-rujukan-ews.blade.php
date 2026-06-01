@@ -5,7 +5,12 @@
     </div>
 
     @if ($sukses)
-        <div class="mb-4 rounded-lg border border-green-400 bg-green-100 p-4 text-green-800">
+        <div @class([
+            'mb-4 rounded-lg border p-4',
+            'border-red-400 bg-red-100 text-red-800' => $zona === 'merah',
+            'border-yellow-400 bg-yellow-100 text-yellow-800' => $zona === 'kuning',
+            'border-green-400 bg-green-100 text-green-800' => $zona === 'hijau' || $zona === '',
+        ])>
             {{ $pesanSukses }}
         </div>
     @endif
