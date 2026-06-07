@@ -7,6 +7,7 @@ use App\Http\Controllers\RekapRujukanIgdExportController;
 use App\Livewire\DaftarRujukanRumahSakit;
 use App\Livewire\DashboardIgd;
 use App\Livewire\DetailRujukanRumahSakit;
+use App\Livewire\DetailRiwayatEws;
 use App\Livewire\FormRujukanEws;
 use App\Livewire\MonitoringFaskes;
 use App\Livewire\RekapRujukanIgd;
@@ -45,6 +46,7 @@ Route::middleware(['auth'])->group(function (): void {
     Route::middleware(['role:puskesmas|rs_perujuk|admin_sistem'])->group(function (): void {
         Route::get('/ews/form', FormRujukanEws::class)->name('ews.form');
         Route::get('/ews/riwayat', RiwayatEws::class)->name('ews.riwayat');
+        Route::get('/ews/riwayat/{assessment}', DetailRiwayatEws::class)->name('ews.riwayat.detail');
     });
 
     Route::middleware(['role:admin_rsud|admin_sistem'])->group(function (): void {

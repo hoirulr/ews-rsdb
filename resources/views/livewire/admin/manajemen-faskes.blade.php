@@ -53,7 +53,7 @@
         </div>
 
         <div class="mt-5 flex justify-end">
-            <button type="submit" class="rounded-lg bg-blue-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-800">
+            <button type="submit" class="rounded-lg bg-brand-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-600">
                 Tambah Faskes
             </button>
         </div>
@@ -61,7 +61,7 @@
 
     <div class="grid gap-4 md:grid-cols-2">
         @foreach ($faskesList as $faskes)
-            <div class="rounded-xl border bg-white p-5 shadow-sm">
+            <div class="rounded-xl border bg-white p-5 shadow-sm" wire:key="faskes-{{ $faskes->id }}">
                 <div class="flex items-start justify-between">
                     <div>
                         <h2 class="font-bold text-gray-800">{{ $faskes->nama_faskes }}</h2>
@@ -75,7 +75,7 @@
                     <span>{{ $faskes->is_active ? 'Aktif' : 'Nonaktif' }}</span>
                 </div>
                 <div class="mt-4 flex justify-end">
-                    <button type="button" wire:click="bukaEditFaskes({{ $faskes->id }})" class="rounded-lg bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-200">
+                    <button type="button" wire:click="bukaEditFaskes({{ $faskes->id }})" class="rounded-lg bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-500 transition hover:bg-brand-100">
                         Edit
                     </button>
                 </div>
@@ -132,7 +132,7 @@
                 <button type="button" x-on:click="$dispatch('close-modal', 'edit-faskes')" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200">
                     Batal
                 </button>
-                <button type="submit" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800">
+                <button type="submit" class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600">
                     Simpan Perubahan
                 </button>
             </div>

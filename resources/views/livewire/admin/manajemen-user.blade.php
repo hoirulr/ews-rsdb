@@ -69,7 +69,7 @@
         </div>
 
         <div class="mt-5 flex justify-end">
-            <button type="submit" class="rounded-lg bg-blue-700 px-5 py-2 text-sm font-semibold text-white transition hover:bg-blue-800">
+            <button type="submit" class="rounded-lg bg-brand-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-600">
                 Tambah User
             </button>
         </div>
@@ -89,7 +89,7 @@
             </thead>
             <tbody class="divide-y divide-gray-100">
                 @foreach ($users as $user)
-                    <tr class="hover:bg-gray-50">
+                    <tr class="hover:bg-gray-50" wire:key="user-{{ $user->id }}">
                         <td class="px-4 py-3 font-semibold text-gray-800">{{ $user->name }}</td>
                         <td class="px-4 py-3">{{ $user->email }}</td>
                         <td class="px-4 py-3">{{ $user->getRoleNames()->join(', ') }}</td>
@@ -97,7 +97,7 @@
                         <td class="px-4 py-3">{{ $user->is_active ? 'Aktif' : 'Nonaktif' }}</td>
                         <td class="px-4 py-3">
                             <div class="flex justify-end gap-2">
-                                <button type="button" wire:click="bukaEditUser({{ $user->id }})" class="rounded-lg bg-blue-100 px-4 py-2 text-sm font-semibold text-blue-700 transition hover:bg-blue-200">
+                                <button type="button" wire:click="bukaEditUser({{ $user->id }})" class="rounded-lg bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-500 transition hover:bg-brand-100">
                                     Edit
                                 </button>
                                 <button type="button" wire:click="bukaGantiPassword({{ $user->id }})" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200">
@@ -165,7 +165,7 @@
                 <button type="button" x-on:click="$dispatch('close-modal', 'edit-detail-user')" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200">
                     Batal
                 </button>
-                <button type="submit" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800">
+                <button type="submit" class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600">
                     Simpan Perubahan
                 </button>
             </div>
@@ -193,7 +193,7 @@
                 <button type="button" x-on:click="$dispatch('close-modal', 'ganti-password-user')" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200">
                     Batal
                 </button>
-                <button type="submit" class="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800">
+                <button type="submit" class="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600">
                     Simpan Password
                 </button>
             </div>

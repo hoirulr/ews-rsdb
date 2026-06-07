@@ -48,12 +48,36 @@ class DaftarRujukanRumahSakit extends Component
 
         $rujukan = $query->get();
 
+        $chartQuery = EwsAssessment::whereMonth('waktu_penilaian', now()->month)
+            ->whereYear('waktu_penilaian', now()->year);
+
+        $rujukanPerZonaRaw = $chartQuery->clone()
+            ->selectRaw('zona, count(*) as count')
+            ->groupBy('zona')
+            ->pluck('count', 'zona')
+            ->toArray();
+
+        $rujukanPerZona = [
+            'hijau' => $rujukanPerZonaRaw['hijau'] ?? 0,
+            'kuning' => $rujukanPerZonaRaw['kuning'] ?? 0,
+            'merah' => $rujukanPerZonaRaw['merah'] ?? 0,
+        ];
+
+        $rujukanPerFaskes = $chartQuery->clone()
+            ->join('faskes', 'ews_assessments.faskes_id', '=', 'faskes.id')
+            ->selectRaw('faskes.nama_faskes as label, count(ews_assessments.id) as count')
+            ->groupBy('faskes.id', 'faskes.nama_faskes')
+            ->pluck('count', 'label')
+            ->toArray();
+
         return view('livewire.daftar-rujukan-rumah-sakit', [
             'rujukanDitangani' => $rujukan,
             'totalRujukan' => $rujukan->count(),
             'totalDitangani' => $rujukan->where('status', 'ditangani')->count(),
             'totalSelesai' => $rujukan->where('status', 'selesai')->count(),
             'totalBelumFeedback' => $rujukan->whereNull('feedback_hasil')->count(),
+            'rujukanPerZona' => $rujukanPerZona,
+            'rujukanPerFaskes' => $rujukanPerFaskes,
         ])->layout('layouts.app', ['title' => 'Daftar Rujukan Rumah Sakit']);
     }
 }

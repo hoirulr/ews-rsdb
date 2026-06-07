@@ -1,6 +1,1 @@
-export default {
-    plugins: {
-        tailwindcss: {},
-        autoprefixer: {},
-    },
-};
+// This file is deprecated - Tailwind v4 uses @tailwindcss/vite plugin

@@ -19,6 +19,17 @@ class DashboardIgd extends Component
     public function mount(): void
     {
         $this->muatAlert();
+
+        if ($this->alarmAktif && count($this->alertAktif) > 0) {
+            $zona = 'kuning';
+            foreach ($this->alertAktif as $alert) {
+                if ($alert['zona'] === 'merah') {
+                    $zona = 'merah';
+                    break;
+                }
+            }
+            $this->dispatch('bunyikan-alarm', zona: $zona);
+        }
     }
 
     public function muatAlert(): void

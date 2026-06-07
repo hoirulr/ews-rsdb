@@ -53,6 +53,8 @@ class FormRujukanEws extends Component
 
     public string $pesanError = '';
 
+    public string $zona_terkirim = '';
+
     public bool $sedangMengirim = false;
 
     public function mount(): void
@@ -62,6 +64,8 @@ class FormRujukanEws extends Component
 
     public function updated(string $propertyName): void
     {
+        $this->sukses = false;
+
         $vitalFields = [
             'respirasi',
             'saturasi_o2',
@@ -145,6 +149,7 @@ class FormRujukanEws extends Component
                 in_array($assessment->zona, ['kuning', 'merah'], true) ? 'Alert sedang dikirim ke IGD RSUD.' : '',
             );
 
+            $this->zona_terkirim = $assessment->zona;
             $this->sukses = true;
             $this->resetForm();
         } catch (ValidationException $exception) {

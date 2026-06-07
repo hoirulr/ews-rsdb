@@ -15,6 +15,7 @@ $maxWidth = [
 @endphp
 
 <div
+    wire:ignore.self
     x-data="{
         show: @js($show),
         focusables() {

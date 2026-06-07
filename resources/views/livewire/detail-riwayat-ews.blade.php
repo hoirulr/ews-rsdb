@@ -5,22 +5,11 @@
             <p class="mt-1 text-sm text-gray-500">{{ $assessment->faskes->nama_faskes }} - {{ $assessment->waktu_penilaian->format('d/m/Y H:i') }}</p>
         </div>
         <div class="flex gap-2">
-            <a href="{{ route('igd.dashboard') }}" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200">
-                Dashboard
-            </a>
-            <a href="{{ route('rs.daftar-rujukan') }}" class="rounded-lg bg-brand-50 px-4 py-2 text-sm font-semibold text-brand-500 transition hover:bg-brand-100">
-                Daftar Rujukan
+            <a href="{{ route('ews.riwayat') }}" class="rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200">
+                Kembali ke Riwayat
             </a>
         </div>
     </div>
-
-    @if ($sukses)
-        <div class="mb-4 rounded-lg border border-green-400 bg-green-100 p-4 text-green-800">{{ $pesanSukses }}</div>
-    @endif
-
-    @if ($pesanError)
-        <div class="mb-4 rounded-lg border border-red-400 bg-red-100 p-4 text-red-800">{{ $pesanError }}</div>
-    @endif
 
     <div @class([
         'mb-6 rounded-xl border-2 p-6 text-center',
@@ -114,41 +103,26 @@
         </div>
     </div>
 
-    <form wire:submit.prevent="simpanFeedback" class="rounded-xl border bg-white p-6 shadow-sm">
-        <h2 class="mb-4 text-lg font-semibold text-gray-700">Feedback dan Catatan Rumah Sakit</h2>
-
+    <div class="rounded-xl border bg-white p-6 shadow-sm">
+        <h2 class="mb-4 text-lg font-semibold text-gray-700">Feedback Rumah Sakit</h2>
+        
         @if ($assessment->feedback_hasil)
-            <div class="mb-4 rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm text-brand-800 dark:border-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
-                Feedback terakhir: <strong>{{ $assessment->feedback_label }}</strong>
-                @if ($assessment->waktu_feedback)
-                    pada {{ $assessment->waktu_feedback->format('d/m/Y H:i') }}
-                @endif
+            <div class="rounded-lg border border-brand-200 bg-brand-50 p-4 text-sm text-brand-800 dark:border-brand-700 dark:bg-brand-500/10 dark:text-brand-300">
+                <p class="font-semibold">{{ $assessment->feedback_label }}</p>
+                <p class="mt-1 whitespace-pre-line">{{ $assessment->feedback_catatan ?: '-' }}</p>
+                <div class="mt-2 text-xs">
+                    @if ($assessment->feedbackOleh)
+                        Oleh {{ $assessment->feedbackOleh->name }}
+                    @endif
+                    @if ($assessment->waktu_feedback)
+                        pada {{ $assessment->waktu_feedback->format('d/m/Y H:i') }}
+                    @endif
+                </div>
+            </div>
+        @else
+            <div class="rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
+                Belum ada feedback dari rumah sakit.
             </div>
         @endif
-
-        <div class="space-y-4">
-            <div>
-                <label class="mb-1 block text-sm font-medium text-gray-600">Hasil Feedback *</label>
-                <select wire:model="feedbackHasil" class="w-full rounded-lg border px-3 py-2 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90">
-                    <option value="">Pilih feedback</option>
-                    <option value="meninggal">Meninggal</option>
-                    <option value="icu_lebih_24_jam">Rawat Lebih dari 24 Jam di ICU</option>
-                    <option value="rawat_inap_lebih_24_jam">Rawat lebih dari 24 Jam di ruangan rawat inap</option>
-                </select>
-                @error('feedbackHasil') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-            </div>
-
-            <div>
-                <label class="mb-1 block text-sm font-medium text-gray-600">Catatan Rumah Sakit</label>
-                <textarea wire:model="feedbackCatatan" rows="3" class="w-full rounded-lg border px-3 py-2 focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-white/90" placeholder="Catatan tambahan dari rumah sakit..."></textarea>
-                @error('feedbackCatatan') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
-            </div>
-
-            <div class="flex justify-end">
-                <button type="submit" class="rounded-lg bg-brand-500 px-5 py-2 text-sm font-semibold text-white transition hover:bg-brand-600">
-                    Simpan Perubahan
-                </button>
-            </div>
-        </div>
-    </form>
+    </div>
 </div>

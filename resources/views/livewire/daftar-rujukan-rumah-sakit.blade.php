@@ -52,6 +52,21 @@
         </div>
     </div>
 
+    <div class="mb-6 grid gap-6 lg:grid-cols-2" wire:ignore>
+        <div class="rounded-xl border bg-white p-6 shadow-sm">
+            <h2 class="mb-4 text-lg font-bold text-gray-800">Rujukan per Zona (Bulan Ini)</h2>
+            <div class="relative h-64 w-full">
+                <canvas id="chartZona"></canvas>
+            </div>
+        </div>
+        <div class="rounded-xl border bg-white p-6 shadow-sm">
+            <h2 class="mb-4 text-lg font-bold text-gray-800">Rujukan per Faskes (Bulan Ini)</h2>
+            <div class="relative h-64 w-full">
+                <canvas id="chartFaskes"></canvas>
+            </div>
+        </div>
+    </div>
+
     <div class="overflow-hidden rounded-xl border bg-white shadow-sm">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
             <thead class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-500">
@@ -105,7 +120,7 @@
                         </td>
                         <td class="px-4 py-3 text-right">
                             <a href="{{ route('rs.rujukan.detail', $rujukan) }}"
-                               class="inline-flex rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800">
+                               class="inline-flex rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-600">
                                 Lihat Detail
                             </a>
                         </td>
@@ -118,4 +133,59 @@
             </tbody>
         </table>
     </div>
+
+    @assets
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    @endassets
+
+    @script
+    <script>
+        const chartZonaData = @json(array_values($rujukanPerZona));
+        const chartFaskesLabels = @json(array_keys($rujukanPerFaskes));
+        const chartFaskesData = @json(array_values($rujukanPerFaskes));
+
+        new Chart(document.getElementById('chartZona'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Hijau', 'Kuning', 'Merah'],
+                datasets: [{
+                    data: chartZonaData,
+                    backgroundColor: ['#22c55e', '#eab308', '#ef4444'],
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        new Chart(document.getElementById('chartFaskes'), {
+            type: 'bar',
+            data: {
+                labels: chartFaskesLabels,
+                datasets: [{
+                    label: 'Jumlah Rujukan',
+                    data: chartFaskesData,
+                    backgroundColor: '#3b82f6',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    </script>
+    @endscript
 </div>

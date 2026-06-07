@@ -1,118 +1,132 @@
 <!DOCTYPE html>
 <html lang="id" class="h-full">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>{{ $title ?? 'EWS RSUD Depati Bahrin' }}</title>
+
+    <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+
+    <!-- Theme Store -->
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.store('theme', {
+                init() {
+                    const savedTheme = localStorage.getItem('theme');
+                    this.theme = savedTheme || 'light';
+                    this.updateTheme();
+                },
+                theme: 'light',
+                toggle() {
+                    this.theme = this.theme === 'light' ? 'dark' : 'light';
+                    localStorage.setItem('theme', this.theme);
+                    this.updateTheme();
+                },
+                updateTheme() {
+                    const html = document.documentElement;
+                    const body = document.body;
+                    if (this.theme === 'dark') {
+                        html.classList.add('dark');
+                        body.classList.add('dark', 'bg-gray-900');
+                    } else {
+                        html.classList.remove('dark');
+                        body.classList.remove('dark', 'bg-gray-900');
+                    }
+                }
+            });
+
+            Alpine.store('sidebar', {
+                isExpanded: window.innerWidth >= 1280,
+                isMobileOpen: false,
+                isHovered: false,
+
+                toggleExpanded() {
+                    this.isExpanded = !this.isExpanded;
+                    this.isMobileOpen = false;
+                },
+
+                toggleMobileOpen() {
+                    this.isMobileOpen = !this.isMobileOpen;
+                },
+
+                setMobileOpen(val) {
+                    this.isMobileOpen = val;
+                },
+
+                setHovered(val) {
+                    if (window.innerWidth >= 1280 && !this.isExpanded) {
+                        this.isHovered = val;
+                    }
+                }
+            });
+        });
+    </script>
+
+    <!-- Apply dark mode immediately to prevent flash -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const theme = savedTheme || 'light';
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.body.classList.add('dark', 'bg-gray-900');
+            } else {
+                document.documentElement.classList.remove('dark');
+                document.body.classList.remove('dark', 'bg-gray-900');
+            }
+        })();
+    </script>
+
+    <!-- Flatpickr -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    @livewireStyles
 </head>
-<body class="h-full bg-gray-50 font-sans antialiased">
-    <nav class="bg-blue-900 text-white shadow-lg">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="flex h-16 items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-red-600">
-                        <span class="text-lg font-black">E</span>
-                    </div>
-                    <div>
-                        <span class="text-lg font-bold">EWS RSUD Depati Bahrin</span>
-                        <p class="text-xs text-blue-300">Early Warning Score System</p>
-                    </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span class="text-sm text-blue-200">{{ auth()->user()->name }}</span>
-                    <span class="rounded-full bg-blue-700 px-2 py-1 text-xs">{{ auth()->user()->getRoleNames()->first() }}</span>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="text-sm text-blue-300 transition hover:text-white">Keluar</button>
-                    </form>
-                </div>
+
+<body
+    x-data="{ 'loaded': true}"
+    x-init="$store.sidebar.isExpanded = window.innerWidth >= 1280;
+    const checkMobile = () => {
+        if (window.innerWidth < 1280) {
+            $store.sidebar.setMobileOpen(false);
+            $store.sidebar.isExpanded = false;
+        } else {
+            $store.sidebar.isMobileOpen = false;
+            $store.sidebar.isExpanded = true;
+        }
+    };
+    window.addEventListener('resize', checkMobile);">
+
+    {{-- preloader --}}
+    <x-common.preloader/>
+    {{-- preloader end --}}
+
+    <div class="min-h-screen xl:flex">
+        @include('layouts.backdrop')
+        @include('layouts.sidebar')
+
+        <div class="flex-1 transition-all duration-300 ease-in-out"
+            :class="{
+                'xl:ml-[290px]': $store.sidebar.isExpanded || $store.sidebar.isHovered,
+                'xl:ml-[90px]': !$store.sidebar.isExpanded && !$store.sidebar.isHovered,
+                'ml-0': $store.sidebar.isMobileOpen
+            }">
+            <!-- app header start -->
+            @include('layouts.app-header')
+            <!-- app header end -->
+            <div class="p-4 mx-auto max-w-(--breakpoint-2xl) md:p-6">
+                {{ $slot }}
             </div>
         </div>
-    </nav>
 
-    <div class="flex h-[calc(100vh-4rem)]">
-        <aside class="w-64 flex-shrink-0 overflow-y-auto bg-blue-800 text-white">
-            <nav class="space-y-1 p-4">
-                @role('puskesmas|rs_perujuk|admin_sistem')
-                    <a href="{{ route('ews.form') }}" @class([
-                        'flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-blue-700',
-                        'bg-blue-700' => request()->routeIs('ews.form'),
-                    ])>
-                        <span>+</span>
-                        <span>Input Rujukan EWS</span>
-                    </a>
-                    <a href="{{ route('ews.riwayat') }}" @class([
-                        'flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-blue-700',
-                        'bg-blue-700' => request()->routeIs('ews.riwayat'),
-                    ])>
-                        <span>R</span>
-                        <span>Riwayat Rujukan</span>
-                    </a>
-                @endrole
-
-                @role('admin_rsud|admin_sistem')
-                    <div class="pb-1 pt-4">
-                        <p class="px-4 text-xs font-semibold uppercase text-blue-400">IGD RSUD</p>
-                    </div>
-                    <a href="{{ route('igd.dashboard') }}" @class([
-                        'flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-blue-700',
-                        'bg-blue-700' => request()->routeIs('igd.dashboard') || request()->routeIs('rs.dashboard'),
-                    ])>
-                        <span>D</span>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="{{ route('rs.daftar-rujukan') }}" @class([
-                        'flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-blue-700',
-                        'bg-blue-700' => request()->routeIs('rs.daftar-rujukan') || request()->routeIs('rs.rujukan.detail'),
-                    ])>
-                        <span>L</span>
-                        <span>Daftar Rujukan</span>
-                    </a>
-                    <a href="{{ route('igd.monitoring') }}" @class([
-                        'flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-blue-700',
-                        'bg-blue-700' => request()->routeIs('igd.monitoring'),
-                    ])>
-                        <span>M</span>
-                        <span>Monitoring Faskes</span>
-                    </a>
-                    <a href="{{ route('igd.rekap-rujukan') }}" @class([
-                        'flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-blue-700',
-                        'bg-blue-700' => request()->routeIs('igd.rekap-rujukan'),
-                    ])>
-                        <span>K</span>
-                        <span>Rekap Rujukan</span>
-                    </a>
-                @endrole
-
-                @role('admin_sistem')
-                    <div class="pb-1 pt-4">
-                        <p class="px-4 text-xs font-semibold uppercase text-blue-400">Admin Sistem</p>
-                    </div>
-                    <a href="{{ route('admin.user') }}" @class([
-                        'flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-blue-700',
-                        'bg-blue-700' => request()->routeIs('admin.user'),
-                    ])>
-                        <span>U</span>
-                        <span>Manajemen User</span>
-                    </a>
-                    <a href="{{ route('admin.faskes') }}" @class([
-                        'flex items-center gap-3 rounded-lg px-4 py-3 transition hover:bg-blue-700',
-                        'bg-blue-700' => request()->routeIs('admin.faskes'),
-                    ])>
-                        <span>F</span>
-                        <span>Manajemen Faskes</span>
-                    </a>
-                @endrole
-            </nav>
-        </aside>
-
-        <main class="flex-1 overflow-y-auto p-6">
-            {{ $slot }}
-        </main>
     </div>
 
+    <!-- Alarm Audio Scripts (EWS-specific) -->
     <script>
         window.audioCtx = null;
         window.alarmInterval = null;
@@ -122,7 +136,20 @@
             if (!window.audioCtx) {
                 window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             }
+            if (window.audioCtx.state === 'suspended') {
+                window.audioCtx.resume();
+            }
         };
+
+        const unlockAudio = () => {
+            window.initAudio();
+            document.removeEventListener('click', unlockAudio);
+            document.removeEventListener('keydown', unlockAudio);
+            document.removeEventListener('touchstart', unlockAudio);
+        };
+        document.addEventListener('click', unlockAudio, { once: true });
+        document.addEventListener('keydown', unlockAudio, { once: true });
+        document.addEventListener('touchstart', unlockAudio, { once: true });
 
         function stopAlarm() {
             if (window.alarmInterval) {
@@ -170,5 +197,8 @@
             Livewire.on('hentikan-alarm', () => stopAlarm());
         });
     </script>
+
+    @livewireScripts
 </body>
+
 </html>
