@@ -1,9 +1,9 @@
 import './echo';
-import Alpine from 'alpinejs';
+//import Alpine from 'alpinejs';
 
-window.Alpine = Alpine;
+//window.Alpine = Alpine;
 
-(function() {
+(function () {
     const savedTheme = localStorage.getItem('theme');
     const theme = savedTheme || 'light';
     if (theme === 'dark') {
