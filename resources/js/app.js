@@ -1,7 +1,8 @@
 import './echo';
-import Alpine from 'alpinejs';
 
-window.Alpine = Alpine;
+// Livewire v3 already bundles Alpine with navigate plugin.
+// Do NOT import Alpine separately — it creates a duplicate instance
+// that lacks Livewire's plugins (navigate, etc.).
 
 (function () {
     const savedTheme = localStorage.getItem('theme');
@@ -12,10 +13,6 @@ window.Alpine = Alpine;
         document.documentElement.classList.remove('dark');
     }
 })();
-
-// Don't start Alpine here if Livewire is managing it
-// Livewire v3 already bundles and starts Alpine
-// Alpine.start();
 
 document.addEventListener('alpine:init', () => {
     Alpine.store('theme', {
