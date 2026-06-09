@@ -19,17 +19,7 @@ class DashboardIgd extends Component
     public function mount(): void
     {
         $this->muatAlert();
-
-        if ($this->alarmAktif && count($this->alertAktif) > 0) {
-            $zona = 'kuning';
-            foreach ($this->alertAktif as $alert) {
-                if ($alert['zona'] === 'merah') {
-                    $zona = 'merah';
-                    break;
-                }
-            }
-            $this->dispatch('bunyikan-alarm', zona: $zona);
-        }
+        $this->bunyikanAlarmJikaAda();
     }
 
     public function muatAlert(): void
@@ -61,6 +51,12 @@ class DashboardIgd extends Component
     #[On('echo-private:ews-alerts.rsud,.ews.alert')]
     public function alertBaru(array $data): void
     {
+        // Avoid duplicates if poll already picked it up
+        $existingIds = array_column($this->alertAktif, 'id');
+        if (in_array($data['id'] ?? null, $existingIds, true)) {
+            return;
+        }
+
         array_unshift($this->alertAktif, $data);
         $this->alarmAktif = true;
 
@@ -95,6 +91,20 @@ class DashboardIgd extends Component
 
     public function render()
     {
+        // Capture IDs before refresh to detect new alerts from DB polling
+        $idSebelumnya = array_column($this->alertAktif, 'id');
+
+        // Refresh alerts from DB on every poll cycle (fallback if WebSocket fails)
+        $this->muatAlert();
+
+        // Detect new alerts that appeared since last render
+        $idSekarang = array_column($this->alertAktif, 'id');
+        $idBaru = array_diff($idSekarang, $idSebelumnya);
+
+        if ($idBaru !== []) {
+            $this->bunyikanAlarmJikaAda();
+        }
+
         $rujukanBelumDitangani = EwsAssessment::with(['patient', 'faskes', 'petugas'])
             ->where('status', 'menunggu')
             ->latest('waktu_penilaian')
@@ -107,5 +117,25 @@ class DashboardIgd extends Component
             'totalKuning' => $rujukanBelumDitangani->where('zona', 'kuning')->count(),
             'totalHijau' => $rujukanBelumDitangani->where('zona', 'hijau')->count(),
         ])->layout('layouts.app', ['title' => 'Dashboard']);
+    }
+
+    /**
+     * Determine the highest-priority zona from active alerts and dispatch the alarm.
+     */
+    private function bunyikanAlarmJikaAda(): void
+    {
+        if (! $this->alarmAktif || $this->alertAktif === []) {
+            return;
+        }
+
+        $zona = 'kuning';
+        foreach ($this->alertAktif as $alert) {
+            if ($alert['zona'] === 'merah') {
+                $zona = 'merah';
+                break;
+            }
+        }
+
+        $this->dispatch('bunyikan-alarm', zona: $zona);
     }
 }
