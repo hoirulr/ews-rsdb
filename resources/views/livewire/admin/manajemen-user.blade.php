@@ -111,7 +111,7 @@
         </table>
     </div>
 
-    <x-modal name="edit-detail-user" maxWidth="2xl">
+    <x-modal name="edit-detail-user" maxWidth="2xl" wire:key="modal-edit-detail-user">
         <form wire:submit.prevent="simpanEditUser" class="p-6">
             <h2 class="text-lg font-semibold text-gray-800">Edit Detail User</h2>
 
@@ -172,7 +172,7 @@
         </form>
     </x-modal>
 
-    <x-modal name="ganti-password-user" maxWidth="md">
+    <x-modal name="ganti-password-user" maxWidth="md" wire:key="modal-ganti-password-user">
         <form wire:submit.prevent="gantiPassword" class="p-6">
             <h2 class="text-lg font-semibold text-gray-800">Ganti Password User</h2>
 

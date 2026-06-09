@@ -83,7 +83,7 @@
         @endforeach
     </div>
 
-    <x-modal name="edit-faskes" maxWidth="2xl">
+    <x-modal name="edit-faskes" maxWidth="2xl" wire:key="modal-edit-faskes">
         <form wire:submit.prevent="simpanEditFaskes" class="p-6">
             <h2 class="text-lg font-semibold text-gray-800">Edit Faskes</h2>
 
