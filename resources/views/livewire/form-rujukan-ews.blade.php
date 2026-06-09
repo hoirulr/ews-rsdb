@@ -1,4 +1,58 @@
-<div class="mx-auto max-w-4xl space-y-6">
+<div class="mx-auto max-w-4xl space-y-6"
+     x-data="{
+         validationErrors: [],
+         closeAndScrollToError() {
+             this.$dispatch('close-modal', 'validation-error');
+             if (this.validationErrors.length > 0) {
+                 const firstField = this.validationErrors[0].field;
+                 const el = document.querySelector('[wire\\:model=\'' + firstField + '\'], [wire\\:model\\.live=\'' + firstField + '\']');
+                 if (el) {
+                     el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                     el.focus();
+                 }
+             }
+         }
+     }"
+     x-on:form-validation-error.window="validationErrors = $event.detail.errors; $dispatch('open-modal', 'validation-error')">
+
+    {{-- Validation Error Popup Modal --}}
+    @teleport('body')
+        <x-modal name="validation-error" maxWidth="2xl" :center="true" :sidebarAdjust="true">
+            <div class="p-6">
+                {{-- Header --}}
+                <div class="flex items-center gap-3 border-b pb-4 mb-4 dark:border-gray-800">
+                    <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-error-100 text-error-600 dark:bg-error-500/20 dark:text-error-400">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Form Belum Lengkap</h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">Lengkapi data sebelum mengirim rujukan</p>
+                    </div>
+                </div>
+
+                {{-- Message --}}
+                <div class="py-4 text-center">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">
+                        Mohon lengkapi seluruh field wajib yang ditandai dengan tanda bintang (*) sebelum mengirim rujukan.
+                    </p>
+                </div>
+
+                {{-- Footer --}}
+                <div class="mt-6 flex justify-end">
+                    <button type="button"
+                            @click="closeAndScrollToError()"
+                            class="w-full rounded-lg bg-error-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-error-700 focus:outline-none focus:ring-2 focus:ring-error-500 focus:ring-offset-2">
+                        Lengkapi Sekarang
+                    </button>
+                </div>
+            </div>
+        </x-modal>
+    @endteleport
+
     <div>
         <h1 class="text-2xl font-bold text-gray-800 dark:text-white/90">Form Rujukan EWS</h1>
         <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ auth()->user()->faskes->nama_faskes ?? '' }}</p>
@@ -91,7 +145,9 @@
                             fp: null,
                             init() {
                                 this.fp = flatpickr(this.$refs.input, {
-                                    dateFormat: 'd-m-Y',
+                                    altInput: true,
+                                    altFormat: 'd-m-Y',
+                                    dateFormat: 'Y-m-d',
                                     defaultDate: this.date,
                                     onChange: (selectedDates, dateStr) => {
                                         this.date = dateStr;

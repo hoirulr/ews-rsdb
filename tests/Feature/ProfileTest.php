@@ -6,6 +6,7 @@ use App\Models\Faskes;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Volt\Volt;
+use Spatie\Permission\Models\Role;
 use Tests\TestCase;
 
 class ProfileTest extends TestCase
@@ -14,7 +15,9 @@ class ProfileTest extends TestCase
 
     public function test_profile_page_is_displayed(): void
     {
+        Role::firstOrCreate(['name' => 'puskesmas']);
         $user = User::factory()->create();
+        $user->assignRole('puskesmas');
 
         $response = $this->actingAs($user)->get('/profile');
 

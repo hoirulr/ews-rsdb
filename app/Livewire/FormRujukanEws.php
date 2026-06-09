@@ -100,20 +100,52 @@ class FormRujukanEws extends Component
         $this->sukses = false;
         $this->sedangMengirim = true;
 
-        $this->validate([
-            'nama_pasien' => ['required', 'string', 'max:255'],
-            'no_rm' => ['required', 'string', 'max:50'],
-            'tanggal_lahir' => ['required', 'date', 'before:today'],
-            'jenis_kelamin' => ['required', 'in:L,P'],
-            'waktu_penilaian' => ['required', 'date'],
-            'respirasi' => ['required', 'integer', 'min:1', 'max:60'],
-            'saturasi_o2' => ['required', 'integer', 'min:70', 'max:100'],
-            'oksigen_tambahan' => ['required', 'in:0,1'],
-            'suhu' => ['required', 'numeric', 'min:30.0', 'max:45.0'],
-            'td_sistolik' => ['required', 'integer', 'min:50', 'max:300'],
-            'nadi' => ['required', 'integer', 'min:20', 'max:250'],
-            'kesadaran' => ['required', 'in:A,V,P,U'],
-        ]);
+        try {
+            $this->validate([
+                'nama_pasien' => ['required', 'string', 'max:255'],
+                'no_rm' => ['required', 'string', 'max:50'],
+                'tanggal_lahir' => ['required', 'date', 'before:today'],
+                'jenis_kelamin' => ['required', 'in:L,P'],
+                'waktu_penilaian' => ['required', 'date'],
+                'respirasi' => ['required', 'integer', 'min:1', 'max:60'],
+                'saturasi_o2' => ['required', 'integer', 'min:70', 'max:100'],
+                'oksigen_tambahan' => ['required', 'in:0,1'],
+                'suhu' => ['required', 'numeric', 'min:30.0', 'max:45.0'],
+                'td_sistolik' => ['required', 'integer', 'min:50', 'max:300'],
+                'nadi' => ['required', 'integer', 'min:20', 'max:250'],
+                'kesadaran' => ['required', 'in:A,V,P,U'],
+            ]);
+        } catch (ValidationException $exception) {
+            $fieldLabels = [
+                'nama_pasien' => 'Nama Pasien',
+                'no_rm' => 'No Rekam Medis',
+                'tanggal_lahir' => 'Tanggal Lahir',
+                'jenis_kelamin' => 'Jenis Kelamin',
+                'waktu_penilaian' => 'Waktu Penilaian',
+                'respirasi' => 'Respirasi (RR)',
+                'saturasi_o2' => 'Saturasi O₂',
+                'oksigen_tambahan' => 'Suplemen O₂',
+                'suhu' => 'Suhu',
+                'td_sistolik' => 'TD Sistolik',
+                'nadi' => 'Nadi',
+                'kesadaran' => 'Kesadaran AVPU',
+            ];
+
+            $errorList = [];
+            foreach ($exception->errors() as $field => $messages) {
+                $errorList[] = [
+                    'field' => $field,
+                    'label' => $fieldLabels[$field] ?? $field,
+                    'message' => $messages[0],
+                ];
+            }
+
+            $this->dispatch('form-validation-error', errors: $errorList);
+
+            $this->sedangMengirim = false;
+
+            throw $exception;
+        }
 
         try {
             $assessment = $service->kirimRujukan(

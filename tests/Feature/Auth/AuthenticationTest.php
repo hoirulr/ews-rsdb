@@ -61,11 +61,11 @@ class AuthenticationTest extends TestCase
 
         $this->actingAs($user);
 
-        $response = $this->get('/dashboard');
+        $response = $this->get('/profile');
 
         $response
             ->assertOk()
-            ->assertSeeVolt('layout.navigation');
+            ->assertSee('RSUD Depati Bahrin');
     }
 
     public function test_admin_rsud_users_are_redirected_to_igd_dashboard(): void

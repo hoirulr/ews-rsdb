@@ -1,4 +1,10 @@
 <div class="space-y-6" wire:poll.10s>
+    @if (session()->has('sukses'))
+        <div class="rounded-xl border border-success-200 bg-success-50 p-4 text-success-800 dark:border-success-800 dark:bg-success-500/10 dark:text-success-300">
+            {{ session('sukses') }}
+        </div>
+    @endif
+
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-gray-800 dark:text-white/90">Dashboard</h1>

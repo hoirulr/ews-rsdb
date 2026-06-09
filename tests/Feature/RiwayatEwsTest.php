@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Livewire\RiwayatEws;
+use App\Livewire\DetailRiwayatEws;
 use App\Models\EwsAssessment;
 use App\Models\Faskes;
 use App\Models\Patient;
@@ -131,14 +131,12 @@ class RiwayatEwsTest extends TestCase
         ]);
 
         Livewire::actingAs($user)
-            ->test(RiwayatEws::class)
-            ->call('lihatDetail', $assessment->id)
+            ->test(DetailRiwayatEws::class, ['assessment' => $assessment])
             ->assertSee('Siti Aminah')
             ->assertSee('Sesak sejak pagi.')
             ->assertSee('Oksigen nasal kanul.')
             ->assertSee('Rawat lebih dari 24 Jam di ruangan rawat inap')
             ->assertSee('Dirawat di ruang penyakit dalam.')
-            ->assertSee('Dokter IGD')
-            ->assertDispatched('open-modal');
+            ->assertSee('Dokter IGD');
     }
 }

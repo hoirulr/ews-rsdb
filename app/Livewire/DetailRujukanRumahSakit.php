@@ -44,15 +44,16 @@ class DetailRujukanRumahSakit extends Component
         ]);
 
         try {
-            $this->assessment = $service->simpanFeedback(
+            $service->simpanFeedback(
                 assessmentId: $this->assessment->id,
                 petugasRs: Auth::user(),
                 feedbackHasil: $this->feedbackHasil,
                 feedbackCatatan: $this->feedbackCatatan !== '' ? $this->feedbackCatatan : null,
-            )->load(['patient.faskesAsal', 'faskes', 'petugas', 'feedbackOleh']);
+            );
 
-            $this->pesanSukses = 'Feedback berhasil disimpan dan rujukan ditandai selesai.';
-            $this->sukses = true;
+            session()->flash('sukses', 'Feedback berhasil disimpan dan rujukan ditandai selesai.');
+
+            $this->redirect(route('igd.dashboard'), navigate: true);
         } catch (Throwable $exception) {
             $this->pesanError = 'Gagal menyimpan feedback: '.$exception->getMessage();
         }

@@ -1,13 +1,14 @@
 <?php
 
+use App\Http\Controllers\KeepAliveController;
+use App\Http\Controllers\RekapRujukanIgdExportController;
 use App\Livewire\Actions\Logout;
 use App\Livewire\Admin\ManajemenFaskes;
 use App\Livewire\Admin\ManajemenUser;
-use App\Http\Controllers\RekapRujukanIgdExportController;
 use App\Livewire\DaftarRujukanRumahSakit;
 use App\Livewire\DashboardIgd;
-use App\Livewire\DetailRujukanRumahSakit;
 use App\Livewire\DetailRiwayatEws;
+use App\Livewire\DetailRujukanRumahSakit;
 use App\Livewire\FormRujukanEws;
 use App\Livewire\MonitoringFaskes;
 use App\Livewire\RekapRujukanIgd;
@@ -23,6 +24,7 @@ Route::post('logout', function (Logout $logout) {
 })->middleware('auth')->name('logout');
 
 Route::middleware(['auth'])->group(function (): void {
+    Route::get('/keep-alive', KeepAliveController::class)->name('keep-alive');
     Route::view('/profile', 'profile')->name('profile');
 
     Route::get('/dashboard', function () {
