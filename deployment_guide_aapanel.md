@@ -156,6 +156,7 @@ APP_URL=https://ews.domain-anda.com
 
 APP_LOCALE=id
 APP_FALLBACK_LOCALE=id
+APP_TIMEZONE=Asia/Jakarta
 
 BCRYPT_ROUNDS=12
 
