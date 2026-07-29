@@ -105,17 +105,27 @@ class DashboardIgd extends Component
             $this->bunyikanAlarmJikaAda();
         }
 
+        // Halaman ini di-poll tiap 10 detik, jadi daftar dibatasi dan statistik
+        // dihitung lewat satu query agregat agar tetap ringan saat data membesar.
         $rujukanBelumDitangani = EwsAssessment::with(['patient', 'faskes', 'petugas'])
             ->where('status', 'menunggu')
             ->latest('waktu_penilaian')
+            ->take(50)
             ->get();
+
+        $statistik = EwsAssessment::where('status', 'menunggu')
+            ->selectRaw('count(*) as total')
+            ->selectRaw("sum(zona = 'merah') as total_merah")
+            ->selectRaw("sum(zona = 'kuning') as total_kuning")
+            ->selectRaw("sum(zona = 'hijau') as total_hijau")
+            ->first();
 
         return view('livewire.dashboard-igd', [
             'rujukanBelumDitangani' => $rujukanBelumDitangani,
-            'totalMenunggu' => $rujukanBelumDitangani->count(),
-            'totalMerah' => $rujukanBelumDitangani->where('zona', 'merah')->count(),
-            'totalKuning' => $rujukanBelumDitangani->where('zona', 'kuning')->count(),
-            'totalHijau' => $rujukanBelumDitangani->where('zona', 'hijau')->count(),
+            'totalMenunggu' => (int) ($statistik->total ?? 0),
+            'totalMerah' => (int) ($statistik->total_merah ?? 0),
+            'totalKuning' => (int) ($statistik->total_kuning ?? 0),
+            'totalHijau' => (int) ($statistik->total_hijau ?? 0),
         ])->layout('layouts.app', ['title' => 'Dashboard']);
     }
 

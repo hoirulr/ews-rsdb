@@ -5,9 +5,8 @@ use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::middleware('guest')->group(function () {
-    Volt::route('register', 'pages.auth.register')
-        ->name('register');
-
+    // Registrasi publik dinonaktifkan: akun hanya dibuat oleh admin sistem
+    // melalui halaman Manajemen User.
     Volt::route('login', 'pages.auth.login')
         ->name('login');
 

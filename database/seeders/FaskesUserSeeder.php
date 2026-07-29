@@ -14,7 +14,11 @@ class FaskesUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $defaultPassword = 'Rujukan@2026*/';
+        // Password diambil dari env agar tidak ada kredensial tercommit ke git.
+        // Set SEED_FASKES_PASSWORD dan SEED_ADMIN_PASSWORD di .env sebelum seeding
+        // di produksi; fallback di bawah hanya untuk pengembangan lokal.
+        $defaultPassword = env('SEED_FASKES_PASSWORD', 'ganti-password-ini');
+        $adminPassword = env('SEED_ADMIN_PASSWORD', 'ganti-password-ini');
 
         $rsud = Faskes::firstOrCreate(
             ['kode_faskes' => 'RSUD-DB-001'],
@@ -30,7 +34,7 @@ class FaskesUserSeeder extends Seeder
             ['email' => 'admin@rsuddepatibahrin.id'],
             [
                 'name' => 'Administrator Sistem',
-                'password' => Hash::make('Rsuddb*&2026'),
+                'password' => Hash::make($adminPassword),
                 'faskes_id' => $rsud->id,
                 'email_verified_at' => now(),
             ],
@@ -41,7 +45,7 @@ class FaskesUserSeeder extends Seeder
             ['email' => 'igd@rsuddepatibahrin.id'],
             [
                 'name' => 'Dokter IGD RSUD',
-                'password' => Hash::make('Rsuddb*&2026'),
+                'password' => Hash::make($adminPassword),
                 'faskes_id' => $rsud->id,
                 'email_verified_at' => now(),
             ],

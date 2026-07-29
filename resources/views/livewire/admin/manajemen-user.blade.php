@@ -111,6 +111,10 @@
         </table>
     </div>
 
+    <div class="mt-4">
+        {{ $users->links() }}
+    </div>
+
     <x-modal name="edit-detail-user" maxWidth="2xl" wire:key="modal-edit-detail-user">
         <form wire:submit.prevent="simpanEditUser" class="p-6">
             <h2 class="text-lg font-semibold text-gray-800">Edit Detail User</h2>

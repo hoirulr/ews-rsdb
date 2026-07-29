@@ -1,9 +1,7 @@
 <?php
 
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Validation\Rule;
 use Livewire\Volt\Component;
 
 new class extends Component
@@ -22,6 +20,9 @@ new class extends Component
 
     /**
      * Update the profile information for the currently authenticated user.
+     *
+     * Email sengaja tidak bisa diubah sendiri: akun bersifat akun bersama per
+     * faskes, jadi perubahan email hanya lewat admin sistem (Manajemen User).
      */
     public function updateProfileInformation(): void
     {
@@ -29,15 +30,9 @@ new class extends Component
 
         $validated = $this->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
         ]);
 
         $user->fill($validated);
-
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
         $user->save();
 
         $this->dispatch('profile-updated', name: $user->name);
@@ -82,8 +77,8 @@ new class extends Component
 
         <div>
             <x-input-label for="email" :value="__('Email')" />
-            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+            <x-text-input wire:model="email" id="email" name="email" type="email" class="mt-1 block w-full bg-gray-100 dark:bg-gray-800" disabled />
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Perubahan email hanya dapat dilakukan oleh admin sistem.</p>
 
             @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
                 <div>

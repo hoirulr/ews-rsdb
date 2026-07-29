@@ -7,6 +7,7 @@ use App\Services\EwsRujukanService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use RuntimeException;
 use Throwable;
 
 class DetailRujukanRumahSakit extends Component
@@ -54,8 +55,12 @@ class DetailRujukanRumahSakit extends Component
             session()->flash('sukses', 'Feedback berhasil disimpan dan rujukan ditandai selesai.');
 
             $this->redirect(route('igd.dashboard'), navigate: true);
+        } catch (RuntimeException $exception) {
+            $this->pesanError = $exception->getMessage();
         } catch (Throwable $exception) {
-            $this->pesanError = 'Gagal menyimpan feedback: '.$exception->getMessage();
+            report($exception);
+
+            $this->pesanError = 'Gagal menyimpan feedback. Silakan coba lagi atau hubungi admin.';
         }
     }
 

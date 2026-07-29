@@ -72,5 +72,14 @@ class DetailRujukanRumahSakitTest extends TestCase
         $this->assertEquals('selesai', $assessment->fresh()->status);
         $this->assertEquals('rawat_inap_lebih_24_jam', $assessment->fresh()->feedback_hasil);
         $this->assertEquals('Pasien dirawat di bangsal.', $assessment->fresh()->feedback_catatan);
+
+        // Feedback kedua harus ditolak dan tidak menimpa feedback pertama.
+        Livewire::actingAs($petugasRs)
+            ->test(DetailRujukanRumahSakit::class, ['assessment' => $assessment->fresh()])
+            ->set('feedbackHasil', 'meninggal')
+            ->call('simpanFeedback')
+            ->assertSet('pesanError', fn (string $pesan): bool => str_contains($pesan, 'sudah pernah disimpan'));
+
+        $this->assertEquals('rawat_inap_lebih_24_jam', $assessment->fresh()->feedback_hasil);
     }
 }
