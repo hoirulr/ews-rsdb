@@ -8,16 +8,20 @@ use Livewire\WithPagination;
 
 class RiwayatEws extends Component
 {
-<<<<<<< HEAD
+    use WithPagination;
+
     public string $search = '';
+
+    public function updatedSearch(): void
+    {
+        $this->resetPage();
+    }
 
     public function resetPencarian(): void
     {
         $this->search = '';
+        $this->resetPage();
     }
-=======
-    use WithPagination;
->>>>>>> 0a0dd52f52436282cda87dcee0e11842c3aa407f
 
     public function render()
     {

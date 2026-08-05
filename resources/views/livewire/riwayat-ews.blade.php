@@ -24,7 +24,7 @@
             >
                 Hapus Pencarian
             </button>
-            <span class="text-sm text-gray-500">{{ $assessments->count() }} hasil ditemukan</span>
+            <span class="text-sm text-gray-500">{{ $assessments->total() }} hasil ditemukan</span>
         @endif
     </div>
 
