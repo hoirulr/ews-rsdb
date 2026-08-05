@@ -4,9 +4,12 @@ namespace App\Livewire;
 
 use App\Models\EwsAssessment;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class DaftarRujukanRumahSakit extends Component
 {
+    use WithPagination;
+
     public string $status = 'semua';
 
     public string $zona = 'semua';
@@ -18,6 +21,14 @@ class DaftarRujukanRumahSakit extends Component
         $this->status = 'semua';
         $this->zona = 'semua';
         $this->search = '';
+        $this->resetPage();
+    }
+
+    public function updated(string $propertyName): void
+    {
+        if (in_array($propertyName, ['status', 'zona', 'search'], true)) {
+            $this->resetPage();
+        }
     }
 
     public function render()
@@ -46,7 +57,17 @@ class DaftarRujukanRumahSakit extends Component
             });
         }
 
-        $rujukan = $query->get();
+        // Statistik dihitung lewat query agregat agar tidak memuat seluruh
+        // tabel; daftar tabelnya sendiri dipaginasi.
+        $statistik = $query->clone()
+            ->reorder()
+            ->selectRaw("count(*) as total")
+            ->selectRaw("sum(status = 'ditangani') as total_ditangani")
+            ->selectRaw("sum(status = 'selesai') as total_selesai")
+            ->selectRaw('sum(feedback_hasil is null) as total_belum_feedback')
+            ->first();
+
+        $rujukan = $query->paginate(25);
 
         $chartQuery = EwsAssessment::whereMonth('waktu_penilaian', now()->month)
             ->whereYear('waktu_penilaian', now()->year);
@@ -72,10 +93,10 @@ class DaftarRujukanRumahSakit extends Component
 
         return view('livewire.daftar-rujukan-rumah-sakit', [
             'rujukanDitangani' => $rujukan,
-            'totalRujukan' => $rujukan->count(),
-            'totalDitangani' => $rujukan->where('status', 'ditangani')->count(),
-            'totalSelesai' => $rujukan->where('status', 'selesai')->count(),
-            'totalBelumFeedback' => $rujukan->whereNull('feedback_hasil')->count(),
+            'totalRujukan' => (int) ($statistik->total ?? 0),
+            'totalDitangani' => (int) ($statistik->total_ditangani ?? 0),
+            'totalSelesai' => (int) ($statistik->total_selesai ?? 0),
+            'totalBelumFeedback' => (int) ($statistik->total_belum_feedback ?? 0),
             'rujukanPerZona' => $rujukanPerZona,
             'rujukanPerFaskes' => $rujukanPerFaskes,
         ])->layout('layouts.app', ['title' => 'Daftar Rujukan Rumah Sakit']);

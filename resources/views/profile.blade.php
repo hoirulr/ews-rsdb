@@ -21,10 +21,6 @@
             <div class="rounded-xl border border-gray-200 bg-white p-6 shadow-theme-xs dark:border-gray-800 dark:bg-white/[0.03]">
                 <livewire:profile.update-password-form />
             </div>
-
-            <div class="rounded-xl border border-error-200 bg-error-50 p-6 shadow-theme-xs dark:border-error-800 dark:bg-error-500/10">
-                <livewire:profile.delete-user-form />
-            </div>
         </div>
     </div>
 </x-app-layout>

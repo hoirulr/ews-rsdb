@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
+use RuntimeException;
 use Throwable;
 
 class FormRujukanEws extends Component
@@ -187,7 +188,12 @@ class FormRujukanEws extends Component
         } catch (ValidationException $exception) {
             throw $exception;
         } catch (Throwable $exception) {
-            $this->pesanError = 'Gagal mengirim rujukan. Silakan coba lagi atau hubungi admin. ('.$exception->getMessage().')';
+            // RuntimeException dari service berisi pesan yang memang ditujukan
+            // ke user; exception lain (DB, dsb.) cukup pesan generik agar detail
+            // internal tidak bocor — detailnya tetap tercatat di log.
+            $this->pesanError = $exception instanceof RuntimeException
+                ? $exception->getMessage()
+                : 'Gagal mengirim rujukan. Silakan coba lagi atau hubungi admin.';
 
             Log::error('FormRujukanEws: gagal', [
                 'user_id' => Auth::id(),
