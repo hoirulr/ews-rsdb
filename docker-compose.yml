@@ -1,0 +1,77 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: deploy/docker/Dockerfile
+    image: ews-rsdb-app
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - mysql
+
+  web:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/html
+      - ./deploy/docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+      - reverb
+
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ews_rsud_depatibahrin
+      MYSQL_USER: ews
+      MYSQL_PASSWORD: ${DB_PASSWORD:?isi DB_PASSWORD di file .env}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?isi DB_ROOT_PASSWORD di file .env}
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  reverb:
+    image: ews-rsdb-app
+    restart: unless-stopped
+    command: php artisan reverb:start --host=0.0.0.0 --port=8080
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - app
+      - mysql
+
+  queue-alert:
+    image: ews-rsdb-app
+    restart: unless-stopped
+    command: php artisan queue:work database --queue=ews-alert --sleep=1 --tries=3 --timeout=30 --max-jobs=500 --max-time=3600
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - app
+      - mysql
+
+  queue-log:
+    image: ews-rsdb-app
+    restart: unless-stopped
+    command: php artisan queue:work database --queue=ews-log,default --sleep=3 --tries=5 --timeout=60 --max-jobs=1000 --max-time=3600
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - app
+      - mysql
+
+  scheduler:
+    image: ews-rsdb-app
+    restart: unless-stopped
+    command: sh -c "while true; do php artisan schedule:run --no-interaction; sleep 60; done"
+    volumes:
+      - ./:/var/www/html
+    depends_on:
+      - app
+      - mysql
+
+volumes:
+  mysql-data:
