@@ -104,6 +104,7 @@ class BroadcastEwsAlert implements ShouldQueue
             'payload' => ['exception' => $exception::class],
         ]);
 
-        $this->assessment->updateQuietly(['alert_aktif' => false]);
+        // alert_aktif sengaja dibiarkan true: dashboard IGD punya fallback polling
+        // berbasis kolom ini, sehingga alert tetap terlihat walau WebSocket down.
     }
 }

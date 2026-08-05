@@ -38,13 +38,18 @@ class EwsRujukanService
         $perluBroadcast = in_array($hasil['zona'], ['kuning', 'merah'], true);
 
         $assessment = DB::transaction(function () use ($data, $petugas, $hasil, $perluBroadcast): EwsAssessment {
+            // No RM adalah penomoran internal faskes, jadi pencarian pasien
+            // harus dibatasi ke faskes perujuk agar pasien antar-faskes yang
+            // kebetulan punya no RM sama tidak tergabung.
             $patient = Patient::firstOrCreate(
-                ['no_rm' => $data['no_rm']],
+                [
+                    'no_rm' => $data['no_rm'],
+                    'faskes_asal_id' => $petugas->faskes_id,
+                ],
                 [
                     'nama_pasien' => $data['nama_pasien'],
                     'tanggal_lahir' => $data['tanggal_lahir'],
                     'jenis_kelamin' => $data['jenis_kelamin'],
-                    'faskes_asal_id' => $petugas->faskes_id,
                 ],
             );
 
@@ -152,7 +157,13 @@ class EwsRujukanService
     public function simpanFeedback(int $assessmentId, User $petugasRs, string $feedbackHasil, ?string $feedbackCatatan = null): EwsAssessment
     {
         $assessment = DB::transaction(function () use ($assessmentId, $petugasRs, $feedbackHasil, $feedbackCatatan): EwsAssessment {
-            $assessment = EwsAssessment::lockForUpdate()->findOrFail($assessmentId);
+            $assessment = EwsAssessment::with('feedbackOleh')->lockForUpdate()->findOrFail($assessmentId);
+
+            if ($assessment->feedback_hasil !== null) {
+                throw new RuntimeException(
+                    'Feedback sudah pernah disimpan oleh '.($assessment->feedbackOleh?->name ?? 'petugas lain').' dan tidak dapat diubah.',
+                );
+            }
 
             $assessment->update([
                 'status' => 'selesai',

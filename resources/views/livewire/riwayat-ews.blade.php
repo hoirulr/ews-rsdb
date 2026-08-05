@@ -85,4 +85,8 @@
         </table>
     </div>
 
+    <div class="mt-4">
+        {{ $assessments->links() }}
+    </div>
+
 </div>

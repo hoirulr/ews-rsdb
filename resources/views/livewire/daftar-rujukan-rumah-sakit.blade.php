@@ -134,6 +134,10 @@
         </table>
     </div>
 
+    <div class="mt-4">
+        {{ $rujukanDitangani->links() }}
+    </div>
+
     @assets
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @endassets

@@ -4,15 +4,20 @@ namespace App\Livewire;
 
 use App\Models\EwsAssessment;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class RiwayatEws extends Component
 {
+<<<<<<< HEAD
     public string $search = '';
 
     public function resetPencarian(): void
     {
         $this->search = '';
     }
+=======
+    use WithPagination;
+>>>>>>> 0a0dd52f52436282cda87dcee0e11842c3aa407f
 
     public function render()
     {
@@ -37,7 +42,7 @@ class RiwayatEws extends Component
         }
 
         return view('livewire.riwayat-ews', [
-            'assessments' => $query->take(50)->get(),
+            'assessments' => $query->paginate(25),
         ])->layout('layouts.app', ['title' => 'Riwayat Rujukan EWS']);
     }
 }
