@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Livewire\DetailRiwayatEws;
+use App\Livewire\RiwayatEws;
 use App\Models\EwsAssessment;
 use App\Models\Faskes;
 use App\Models\Patient;
@@ -73,6 +74,84 @@ class RiwayatEwsTest extends TestCase
             ->assertSee('Budi Santoso')
             ->assertSee('Rawat Lebih dari 24 Jam di ICU')
             ->assertSee('Lihat Detail');
+    }
+
+    public function test_pencarian_memfilter_riwayat_berdasarkan_nama_dan_no_rm(): void
+    {
+        Role::create(['name' => 'puskesmas']);
+
+        $faskes = Faskes::create([
+            'nama_faskes' => 'Puskesmas Melati',
+            'tipe' => 'puskesmas',
+            'kode_faskes' => 'PKM-MLT',
+        ]);
+
+        $user = User::factory()->create(['faskes_id' => $faskes->id]);
+        $user->assignRole('puskesmas');
+
+        $dataVital = [
+            'faskes_id' => $faskes->id,
+            'user_id' => $user->id,
+            'waktu_penilaian' => now(),
+            'respirasi' => 18,
+            'saturasi_o2' => 98,
+            'oksigen_tambahan' => false,
+            'suhu' => 36.5,
+            'td_sistolik' => 120,
+            'nadi' => 80,
+            'kesadaran' => 'A',
+            'total_skor' => 0,
+            'zona' => 'hijau',
+            'status' => 'menunggu',
+        ];
+
+        $budi = Patient::create([
+            'nama_pasien' => 'Budi Santoso',
+            'no_rm' => 'RM-100',
+            'tanggal_lahir' => '1985-05-01',
+            'jenis_kelamin' => 'L',
+            'faskes_asal_id' => $faskes->id,
+        ]);
+
+        $siti = Patient::create([
+            'nama_pasien' => 'Siti Aminah',
+            'no_rm' => 'RM-200',
+            'tanggal_lahir' => '1990-08-10',
+            'jenis_kelamin' => 'P',
+            'faskes_asal_id' => $faskes->id,
+        ]);
+
+        EwsAssessment::create([...$dataVital, 'patient_id' => $budi->id]);
+        EwsAssessment::create([...$dataVital, 'patient_id' => $siti->id]);
+
+        // Cari berdasarkan nama pasien
+        Livewire::actingAs($user)
+            ->test(RiwayatEws::class)
+            ->set('search', 'Budi')
+            ->assertSee('Budi Santoso')
+            ->assertDontSee('Siti Aminah');
+
+        // Cari berdasarkan no RM
+        Livewire::actingAs($user)
+            ->test(RiwayatEws::class)
+            ->set('search', 'RM-200')
+            ->assertSee('Siti Aminah')
+            ->assertDontSee('Budi Santoso');
+
+        // Pencarian tanpa hasil menampilkan pesan kosong yang sesuai
+        Livewire::actingAs($user)
+            ->test(RiwayatEws::class)
+            ->set('search', 'tidak-ada-xyz')
+            ->assertSee('Tidak ada riwayat yang cocok');
+
+        // Tombol reset mengosongkan pencarian
+        Livewire::actingAs($user)
+            ->test(RiwayatEws::class)
+            ->set('search', 'Budi')
+            ->call('resetPencarian')
+            ->assertSet('search', '')
+            ->assertSee('Budi Santoso')
+            ->assertSee('Siti Aminah');
     }
 
     public function test_detail_riwayat_menampilkan_catatan_dan_feedback(): void

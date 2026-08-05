@@ -4,6 +4,30 @@
         <p class="text-sm text-gray-500">50 penilaian terakhir.</p>
     </div>
 
+    <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div class="relative w-full sm:max-w-md">
+            <span class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+            </span>
+            <input
+                type="search"
+                wire:model.live.debounce.300ms="search"
+                placeholder="Cari nama pasien, no RM, atau faskes..."
+                class="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20"
+            >
+        </div>
+
+        @if (trim($search) !== '')
+            <button
+                type="button"
+                wire:click="resetPencarian"
+                class="inline-flex items-center gap-1 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200"
+            >
+                Hapus Pencarian
+            </button>
+            <span class="text-sm text-gray-500">{{ $assessments->count() }} hasil ditemukan</span>
+        @endif
+    </div>
+
     <div class="overflow-hidden rounded-xl border bg-white shadow-sm">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
             <thead class="bg-gray-50 text-left text-xs font-semibold uppercase text-gray-500">
@@ -48,7 +72,13 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" class="px-4 py-10 text-center text-gray-500">Belum ada riwayat rujukan.</td>
+                        <td colspan="8" class="px-4 py-10 text-center text-gray-500">
+                            @if (trim($search) !== '')
+                                Tidak ada riwayat yang cocok dengan "{{ $search }}".
+                            @else
+                                Belum ada riwayat rujukan.
+                            @endif
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
